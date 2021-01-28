@@ -1,0 +1,96 @@
+UNIVERSIDADE FEDERAL DE MINAS GERAIS
+Instituto de Ciências Exatas
+Departamento de Ciência da Computação
+
+DCC129 -- Fundamentos de Teoria da Computação
+Prof. Renato Vimieiro
+
+Trabalho Prático 1 -- Linguagens regulares
+
+Objetivos
+---------
+
+Nesse trabalho serão abordados os aspectos práticos de autômatos finitos,
+expressões regulares e linguagens regulares. Especificamente, serão explorados 
+aspectos de implementação de AF/ERs e da conversão entre eles.
+
+O objetivo secundário é fixar o conteúdo. Entende-se que ao implementar os algoritmos 
+os alunos conseguirão compreender melhor os conceitos explorados.
+Dessa forma, o conteúdo teórico será melhor absorvido e fixado.
+
+Tarefas
+-------
+
+Os alunos deverão implementar um algoritmo para extrair expressões regulares a partir
+de autômatos finitos. O programa deverá ler um arquivo contendo a especificação de um
+autômato, e deverá produzir uma expressão regular equivalente. A entrada do programa 
+(autômato) seguirá formato definido como mais à frente nesse documento. As implementações
+deverão ser feitas em Python 3.6+, podendo usar NumPy como biblioteca de suporte para 
+estrutura de dados básicas. Alternativamente, serão admitidas implementações em C/C++ 
+compiláveis com GCC. Nesse caso, o aluno também deverá incluir um arquivo Makefile para 
+geração do executável.
+
+O programa deve funcionar na linha de comando, tendo a seguinte sintaxe:
+
+	./<programa> <arquivo_entrada>
+
+A saída do programa deve ser na saída principal.
+	
+O uso de bibliotecas adicionais deve ser discutido com o professor.
+
+A sintaxe do arquivo de entrada é a seguinte:
+
+<Estado>(,<Estado>)*
+<Símbolo>(,<Símbolo>)*
+<Estado>(,<Estado>)*
+<Estado>(,<Estado>)*
+(<Estado>,(<Símbolo> + <lambda>),<Estado>(,<Estado>)*\n)*
+
+Ou seja, a primeira linha contém o conjunto de estados do AF. A segunda linha contém os
+símbolos do alfabeto. A terceira linha são os estados iniciais. A quarta os estados finais.
+Em seguida, cada linha deve conter as transições do AF. Essas linhas indicam as transições
+para cada par estado e símbolo ou lambda (no caso de transições lambda).
+
+O que entregar?
+---------------
+
+Devem ser entregues todos os arquivos fonte usados na implementação. Deve ser
+entregue também um relatório explicando sua implementação, assim como as expressões
+obtidas com uma série de exemplos, no mínimo 10. Os exemplos devem ser não triviais;
+ou seja, devem ser de linguagens minimamente complexas. Os exemplos também devem
+ser entregues. OS ARQUIVOS NAO DEVEM SER COMPRIMIDOS EM HIPOTESE ALGUMA. Cada arquivo
+deve ser anexado individualmente. TRABALHOS ENTREGUES COMPRIMIDOS SERAO DESCONSIDERADOS.
+
+Política de Plágio
+------------------
+
+Os alunos podem, e devem, discutir soluções sempre que necessário. Dito isso,
+há uma diferença bem grande entre implementação de soluções similares e cópia
+integral de ideias. Trabalhos copiados na íntegra ou em partes de outros alunos
+e/ou da internet serão prontamente anulados. Caso haja dois trabalhos copiados
+por alunos diferentes, ambos serão anulados.
+
+Datas
+-----
+
+Entrega Teams: 07/02/2021 às 23h59
+
+
+Política de atraso
+------------------
+
+Haverá tolerância de 30min na entrega dos trabalhos. Submissões feitas depois
+do intervalo de tolerância serão penalizados. 
+- Atraso de 1 dia: 10%
+- Atraso de 2 dias: 30%
+- Atraso de +3 dias: não aceito
+
+Serão considerados atrasos de 1 dia aqueles feitos após as 0h30 do dia de entrega.
+A partir daí serão contados o número de dias passados da data de entrega.
+
+
+Referências
+------------------
+
+- Notas de aula.
+- Newton Vieira. Introdução aos Fundamentos da Computação.
