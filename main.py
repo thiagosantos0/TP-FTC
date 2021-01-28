@@ -48,10 +48,10 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     estados += ["<i>","<f>"]
     #Adicionando transições entre os novos e antigos estados finais e iniciais
     for estado in estados_iniciais:
-        transicoes.append(f"<i>,<λ>,{estado}")
+        transicoes.append(f"(<i>,<λ>,{estado})")
 
     for estado in estados_finais:
-        transicoes.append(f"{estado},<λ>,<f>")
+        transicoes.append(f"({estado},<λ>,<f>)")
 
     ##Verificando transições sobre múltiplos símbolos
 
@@ -60,18 +60,47 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     ##E adiciono um transição no formato especificado
 
     #O(N^2)
-    transicoes.append("(<i1>,<λ>,<f>)")
     transicoes.append("(<i1>,<λ>,<g>)")
+    transicoes.append("(<i2>,<λ>,<r>)")
+    transicoes.append("(<i2>,<λ>,<s>)")
+    transicoes.append("(<i2>,<λ>,<t>)")
+
+    estados.append('<i1>')
+    estados.append('<i2>')
+
+    dicionario = dict.fromkeys(estados, "")
     aux = []
+    transicoes_copy = list(map(lambda x: x.replace("(", "").replace(")", ""),transicoes))
     for i in range(len(transicoes)):
-        aux1 = [transicoes[i].split(",")[0].replace("(", ""), transicoes[i].split(",")[1]]
+        aux1 = [transicoes_copy[i].split(",")[0], transicoes_copy[i].split(",")[1]]
         
         for j in range(i+1, len(transicoes)):
-            aux2 = [transicoes[j].split(",")[0].replace("(", ""), transicoes[j].split(",")[1]]
-            print(aux1, aux2)
-            if aux1 == aux2: aux.append(transicoes[j].split(",")[2].replace(")", "")) #Salvando o estado
+            aux2 = [transicoes_copy[j].split(",")[0], transicoes_copy[j].split(",")[1]]
+            #print(transicoes[i], transicoes[j])
+            if aux1 == aux2: aux.append([transicoes_copy[i].split(",")[2], transicoes_copy[i].split(",")[0] , transicoes_copy[j].split(",")[2]]); print(transicoes[i], transicoes[j]) #Salvando o estado
 
-    return aux
+    ##Agrupando os pares comuns
+    labels = ""
+    for x in aux:
+        dicionario[x[1]] += x[0] + " "
+        dicionario[x[1]] += x[2] + " "
+        labels += dicionario[x[1]]
+
+    labels =  list(set(labels.split()))
+
+    ##Pegando os valors únicos 
+    for key, value in dicionario.items():
+        dicionario[key] = list(set(value.split()))
+        print(dicionario[key])
+
+    ##Deletando os estados que transitam sobre múltiplos símbolos
+    print(transicoes)
+    print("\n\n\n\n")
+    for i in range(len(transicoes)):
+        #print(transicoes_copy[i].split(",")[0])
+        if transicoes_copy[i].split(",")[0] in labels or transicoes_copy[i].split(",")[1] in labels:
+            del transicoes[i]
+    return transicoes_copy, labels
 
 entrada = readFiles()
 estados, simbolos, estados_iniciais, estados_finais, transicoes = start(entrada)
@@ -83,17 +112,10 @@ print(transicoes)
 
 printAlgorithm()
 print(estados)
-print(transicoes)
-transicoes.append("(<i>,<λ>,<p0>)")
-transicoes.append("(<i1>,<λ>,<f>)")
-transicoes.append("(<i1>,<λ>,<g>)")
-print(transicoes)
 
-aux1 = [transicoes[7][1], transicoes[7][2]]
-aux2 = [transicoes[8][1], transicoes[8][2]]
-print(aux1 == aux2)
-print(transicoes[8].split(','), transicoes[8])
-print((transicoes[8].split(',')[0].replace("(", "")))
 ############### Teste
-teste = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
-print(teste)
+transicoes, labels = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
+print(transicoes[-1].split(",")[0])
+print(transicoes[-1][0].split(",")[0] in labels)
+print(labels)
+

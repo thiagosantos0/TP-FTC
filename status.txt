@@ -1,0 +1,1 @@
+Eu havia interpretado as "transições sobre múltiplos símbolos de forma incorreta", a ideia correta de multiplos símbolos é quando eu tenho o processamento de vários símbolos diferentes e eles me levam para um mesmo estado.
