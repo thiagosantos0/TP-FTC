@@ -1,0 +1,21 @@
+Sintaxe entrada:
+	<Estado>(,<Estado>)*
+	<Símbolo>(,<Símbolo>)*
+	<Estado>(,<Estado>)*
+	<Estado>(,<Estado>)*
+	(<Estado>,(<Símbolo> + <lambda>),<Estado>(,<Estado>)*\n)*	
+
+#No caso de AFN's podemos processar o mesmo símbolo e ir para múltiplos estados diferentes.
+
+Exemplo:
+	<p0>, <p1>, <i0>, <i1>
+	<a>, <b>
+	<p0>
+	<i1>
+	(<p0>, <a>, <i0>)	
+	(<p0>, <b>, <i1>)
+	(<i0>, <b>, <p1>)
+	(<i0>, <a>, <p0>)
+	(<p1>, <a>, <i1>)
+	(<i1>, <a>, <p1>)
+
