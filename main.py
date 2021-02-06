@@ -34,9 +34,21 @@ def start(input: list):
     final_states = list(input[3].split(','))
     transitions = []
     for i in range(4, len(input)):
-        transitions.append(input[i])
+        transitions.append(input[i].split(','))
 
     return states, symbols, initial_states, final_states, transitions
+
+def erFormat(transition: list):
+    aux = ""
+    for x in transition[2:]:
+        aux += (f"{x}+")
+    return aux[:-1]
+
+def refazTransicoes(transitions: list, flag: list):
+    for x in transitions:
+        for estado in flag:
+            if x[0] == estado: transitions.remove(x); print(x)
+
 
 def translate(estados: list, simbolos: list, estados_iniciais: list, estados_finais: list, transicoes: list):
     '''
@@ -45,77 +57,63 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
 
     '''
     #Adicionando os novos estados iniciais e finais
-    estados += ["<i>","<f>"]
+    estados += ["i","f"]
     #Adicionando transições entre os novos e antigos estados finais e iniciais
     for estado in estados_iniciais:
-        transicoes.append(f"(<i>,<λ>,{estado})")
+        transicoes += [f"i,λ,{estado}".split(',')]
 
     for estado in estados_finais:
-        transicoes.append(f"({estado},<λ>,<f>)")
+        transicoes += [f"{estado},λ,f".split(',')]
 
     ##Verificando transições sobre múltiplos símbolos
 
-    ##A ideia é ir verificando os pares "estado, símbolo" e sempre que este par se repetir
-    ##eu guardo o estado. Depois disso, eu removo todas as transições que possuem esse par
-    ##E adiciono um transição no formato especificado
+    ##A ideia é verificar cada transição, as que possuirem comprimento maior do que 3 tem múltiplas transições, para estes casos chamo
+    ##uma função que faz a conversão para o formato adequado (formato de diagrama ER).
+    
 
-    #O(N^2)
-    transicoes.append("(<i1>,<λ>,<g>)")
-    transicoes.append("(<i2>,<λ>,<r>)")
-    transicoes.append("(<i2>,<λ>,<s>)")
-    transicoes.append("(<i2>,<λ>,<t>)")
+    ##Caso que temos múltiplas transicoes incluindo o próprio elemento (Depois desse passo, todos tem tamanho 3)
+    #new_transitions = []
+    #for transition in transicoes:
+    #    if len(transition) > 3:
+    #        new_transitions.append([transition[0], transition[1], erFormat(transition)])
+    #        transicoes.remove(transition)
 
-    estados.append('<i1>')
-    estados.append('<i2>')
+    #for x in new_transitions:
+    #    transicoes.append(x)
 
-    dicionario = dict.fromkeys(estados, "")
-    aux = []
-    transicoes_copy = list(map(lambda x: x.replace("(", "").replace(")", ""),transicoes))
-    for i in range(len(transicoes)):
-        aux1 = [transicoes_copy[i].split(",")[0], transicoes_copy[i].split(",")[1]]
-        
-        for j in range(i+1, len(transicoes)):
-            aux2 = [transicoes_copy[j].split(",")[0], transicoes_copy[j].split(",")[1]]
-            #print(transicoes[i], transicoes[j])
-            if aux1 == aux2: aux.append([transicoes_copy[i].split(",")[2], transicoes_copy[i].split(",")[0] , transicoes_copy[j].split(",")[2]]); print(transicoes[i], transicoes[j]) #Salvando o estado
-
-    ##Agrupando os pares comuns
-    labels = ""
-    for x in aux:
-        dicionario[x[1]] += x[0] + " "
-        dicionario[x[1]] += x[2] + " "
-        labels += dicionario[x[1]]
-
-    labels =  list(set(labels.split()))
-
-    ##Pegando os valors únicos 
-    for key, value in dicionario.items():
-        dicionario[key] = list(set(value.split()))
-        print(dicionario[key])
-
-    ##Deletando os estados que transitam sobre múltiplos símbolos
-    print(transicoes)
-    print("\n\n\n\n")
-    for i in range(len(transicoes)):
-        #print(transicoes_copy[i].split(",")[0])
-        if transicoes_copy[i].split(",")[0] in labels or transicoes_copy[i].split(",")[1] in labels:
-            del transicoes[i]
-    return transicoes_copy, labels
+    ##Caso de multiplas transicoes
+    teste = []
+    for transicao in transicoes:
+        simbolos = ""
+        for i in transicoes:
+            if transicao != i and transicao[0] == i[0] and transicao[2] == i[2]:
+                #print(transicao)
+                #print(i)
+                teste.append(transicao)
+                
+    
+    teste10 = []
+    for x in range(0, len(teste), 2):
+        #teste10.append(x)
+        print(f"[{teste[x][0], teste[x][1], teste[x+1][1], teste[x+1][2]}]")
+    return estados, transicoes, teste, teste10
 
 entrada = readFiles()
 estados, simbolos, estados_iniciais, estados_finais, transicoes = start(entrada)
-print(estados)
-print(simbolos)
-print(estados_iniciais)
-print(estados_finais)
+#print(estados)
+#print(simbolos)
+#print(estados_iniciais)
+#print(estados_finais)
 print(transicoes)
-
+#print(transicoes[0][1])
 printAlgorithm()
-print(estados)
+
 
 ############### Teste
-transicoes, labels = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
-print(transicoes[-1].split(",")[0])
-print(transicoes[-1][0].split(",")[0] in labels)
-print(labels)
+estados, transicoes, teste1, teste2 = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
+#print(estados)
+#print(transicoes)
+#print(new_transitions)
 
+print(teste1)
+print(teste2)
