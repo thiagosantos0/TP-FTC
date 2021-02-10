@@ -49,6 +49,14 @@ def refazTransicoes(transitions: list, flag: list):
         for estado in flag:
             if x[0] == estado: transitions.remove(x); print(x)
 
+def removeSecond(lista :list, element :str):
+    i = 0
+    j = 0
+    for x in lista:
+        if x == element: i = i + 1
+        if i == 2:
+            del lista[j]
+        j = j + 1
 
 def translate(estados: list, simbolos: list, estados_iniciais: list, estados_finais: list, transicoes: list):
     '''
@@ -64,6 +72,8 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
 
     for estado in estados_finais:
         transicoes += [f"{estado},λ,f".split(',')]
+
+    ##Tenho que trocar os antigos estados finasis e os iniciais
 
     ##Verificando transições sobre múltiplos símbolos
 
@@ -82,7 +92,7 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     #    transicoes.append(x)
 
     ##Caso de multiplas transicoes
-    teste = []
+    '''teste = []
     for transicao in transicoes:
         simbolos = ""
         for i in transicoes:
@@ -96,7 +106,112 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     for x in range(0, len(teste), 2):
         #teste10.append(x)
         print(f"[{teste[x][0], teste[x][1], teste[x+1][1], teste[x+1][2]}]")
-    return estados, transicoes, teste, teste10
+    return estados, transicoes, teste, teste10'''
+    multiplas = []
+    resultados = []
+    ##Ainda tenho que testar se estar cobrindo corretamente os casos em que há mais de duas transicões.
+    for i in range(len(transicoes)):
+        for j in range(i+1, len(transicoes)):
+            if transicoes[i][0] == transicoes[j][0]:
+                chegada = transicoes[j][1:]
+                if transicoes[i][2] in list(chegada): 
+
+                     
+                    removeSecond(transicoes[j], transicoes[i][0])
+                    nova_transicao = [transicoes[i][0], f"({transicoes[i][1]}+{transicoes[j][1]})", transicoes[i][2]]
+                    #multiplas.append(transicoes[i])
+                    multiplas.append(transicoes[j])
+                    resultados.append(nova_transicao)
+    
+    
+    
+    aux = []
+    [aux.append(x[2]) for x in resultados + multiplas]
+    aux = list(set(aux))
+
+    for element in transicoes:
+        if element[2] in aux and element[0] != 'i' and element[0] != 'f': transicoes.remove(element)
+
+    aux2 = []
+    for element in multiplas:
+        if element[2] not in [x[2] for x in resultados]: aux2.append(element)
+    
+    for x in aux2:
+        multiplas.remove(x)
+
+    for x in multiplas:
+        transicoes.remove(x)
+
+    
+    for element in resultados:
+        transicoes.append(element)
+    return transicoes
+
+    ##Eu tive uma ideia para identificar as multiplas transicoes, mas ainda estou na dúvida quanto a um caso específico.
+    ## x,0,x
+    ## x,1,x,x1
+    ##https://pt.wikipedia.org/wiki/Aut%C3%B4mato_finito_determin%C3%ADstico
+
+def stateHasLoop(estado :str, transitions: list):
+    for x in transitions:
+        if x[0] == x[2] and x[0] == estado: return x[1]
+    return ""
+def elimina_estado(estado :str, transitions :list):
+    esquerda = []
+    dirteita = []
+    meio = [estado]
+
+    for x in transitions:
+        if x[0] == estado and x[0] != x[2]: direita = x
+        if x[2] == estado and x[2] != x[0]: esquerda = x
+        
+    flag = stateHasLoop(estado, transitions)
+    if flag != "": nova_transicao = [esquerda[0], f"{esquerda[1]}{flag}*{direita[1]}", direita[2]]
+    else: nova_transicao = [esquerda[0], f"{esquerda[1]}{direita[1]}", direita[2]]
+    
+    aux = []
+    ##removendo estado e transicoes
+    for i in range(len(transitions)):
+        if transitions[i][0] == estado or transitions[i][2] == estado and transitions[i][0] != transitions[i][2]: 
+            #del transitions[i]
+            aux.append(transitions[i])
+
+    
+    for x in aux:
+        transitions.remove(x)
+    transitions.append(nova_transicao)
+
+    return transitions
+
+
+
+def elimination(transitions :list):
+    estados_pr_eliminar = []
+    for element in transitions:
+        if element[1] != 'λ':
+            estados_pr_eliminar.append(element[0])
+            estados_pr_eliminar.append(element[2])
+    estados_pr_eliminar = list(set(estados_pr_eliminar))
+
+
+    '''removidos = []    
+    for i in range(len(estados_pr_eliminar)):
+        for j in range(i+1, len(estados_pr_eliminar)):
+            if estados_pr_eliminar[i][2] == estados_pr_eliminar[j][0] and estados_pr_eliminar[i][0] not in removidos:
+                transitions.append([f'{estados_pr_eliminar[i][0]},{estados_pr_eliminar[i][1]}*{estados_pr_eliminar[j][1]}, {estados_pr_eliminar[j][2]}'])
+                removidos.append(estados_pr_eliminar[j][0])
+                #transitions.remove(estados_pr_eliminar[j])
+'''
+    #for estado in estados_pr_eliminar:
+     #   elimina_estado(estado, transitions)
+    #elimina_estado(estados_pr_eliminar[0], transitions)
+
+    
+
+                
+    
+    
+    return sorted(estados_pr_eliminar)
 
 entrada = readFiles()
 estados, simbolos, estados_iniciais, estados_finais, transicoes = start(entrada)
@@ -110,10 +225,23 @@ printAlgorithm()
 
 
 ############### Teste
-estados, transicoes, teste1, teste2 = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
-#print(estados)
-#print(transicoes)
-#print(new_transitions)
+teste = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
+teste2 = elimination(teste)
 
-print(teste1)
-print(teste2)
+
+##Parece que esta removendo os estados, pelo menos um a um.
+
+##O próximo passo é ver se eu consigo chegar até o caso base.
+##Quando tem loop tem que colocar estrela.
+##Trocar símbolo da concatenação(para sem símbolo), colocar ab ao invés de a*b 
+teste10 = elimina_estado('x', teste)
+#print(teste)
+#print(teste10)
+
+print(teste10)
+teste10 = elimina_estado('x1', teste10)
+print(teste10)
+teste10 = elimina_estado('x1a', teste10)
+print(teste10)
+teste10 = elimina_estado('x1ab', teste10)
+print(teste10) 

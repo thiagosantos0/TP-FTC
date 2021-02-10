@@ -1,0 +1,10 @@
+p0,i0,p1,i1
+a,b
+p0
+i1
+p0,a,i0
+p0,b,i1
+i0,a,p0
+i0,b,p1
+p1,a,i1
+i1,a,p1
