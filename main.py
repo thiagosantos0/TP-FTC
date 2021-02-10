@@ -22,7 +22,7 @@ def printAlgorithm():
     return None
 
 def readFiles():
-    with open("t1.txt") as f:
+    with open("t2.txt") as f:
         content = f.read().splitlines()
     
     return content
@@ -66,47 +66,20 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     '''
     #Adicionando os novos estados iniciais e finais
     estados += ["i","f"]
+
     #Adicionando transições entre os novos e antigos estados finais e iniciais
+    
     for estado in estados_iniciais:
         transicoes += [f"i,λ,{estado}".split(',')]
-
+        
     for estado in estados_finais:
         transicoes += [f"{estado},λ,f".split(',')]
 
-    ##Tenho que trocar os antigos estados finasis e os iniciais
-
-    ##Verificando transições sobre múltiplos símbolos
-
-    ##A ideia é verificar cada transição, as que possuirem comprimento maior do que 3 tem múltiplas transições, para estes casos chamo
-    ##uma função que faz a conversão para o formato adequado (formato de diagrama ER).
+    #Atualizando os estados iniciais e finais
+    estados_iniciais = []; estados_iniciais.append("i")
+    estados_finais = []; estados_finais.append("f")
     
-
-    ##Caso que temos múltiplas transicoes incluindo o próprio elemento (Depois desse passo, todos tem tamanho 3)
-    #new_transitions = []
-    #for transition in transicoes:
-    #    if len(transition) > 3:
-    #        new_transitions.append([transition[0], transition[1], erFormat(transition)])
-    #        transicoes.remove(transition)
-
-    #for x in new_transitions:
-    #    transicoes.append(x)
-
-    ##Caso de multiplas transicoes
-    '''teste = []
-    for transicao in transicoes:
-        simbolos = ""
-        for i in transicoes:
-            if transicao != i and transicao[0] == i[0] and transicao[2] == i[2]:
-                #print(transicao)
-                #print(i)
-                teste.append(transicao)
-                
-    
-    teste10 = []
-    for x in range(0, len(teste), 2):
-        #teste10.append(x)
-        print(f"[{teste[x][0], teste[x][1], teste[x+1][1], teste[x+1][2]}]")
-    return estados, transicoes, teste, teste10'''
+    ##Lógica para remover transições múltiplas
     multiplas = []
     resultados = []
     ##Ainda tenho que testar se estar cobrindo corretamente os casos em que há mais de duas transicões.
@@ -118,7 +91,7 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
 
                      
                     removeSecond(transicoes[j], transicoes[i][0])
-                    nova_transicao = [transicoes[i][0], f"({transicoes[i][1]}+{transicoes[j][1]})", transicoes[i][2]]
+                    nova_transicao = [transicoes[i][0],f"({transicoes[i][1]}+{transicoes[j][1]})",transicoes[i][2]]
                     #multiplas.append(transicoes[i])
                     multiplas.append(transicoes[j])
                     resultados.append(nova_transicao)
@@ -145,45 +118,61 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     
     for element in resultados:
         transicoes.append(element)
-    return transicoes
+    return transicoes, estados_iniciais, estados_finais
 
-    ##Eu tive uma ideia para identificar as multiplas transicoes, mas ainda estou na dúvida quanto a um caso específico.
-    ## x,0,x
-    ## x,1,x,x1
-    ##https://pt.wikipedia.org/wiki/Aut%C3%B4mato_finito_determin%C3%ADstico
+
 
 def stateHasLoop(estado :str, transitions: list):
     for x in transitions:
         if x[0] == x[2] and x[0] == estado: return x[1]
     return ""
+
+def transitionBefore(estado1 :str, estado2: str, transitions :list):
+    for element in transitions:
+        if (element[0] == estado1 and element[2] == estado2) or (element[0] == estado2 and element[2] == estado1): return element[1]
+    
+    return ""
+
 def elimina_estado(estado :str, transitions :list):
     esquerda = []
-    dirteita = []
+    direita = []
     meio = [estado]
+    print(f"Eliminando estado: {estado}")
 
     for x in transitions:
-        if x[0] == estado and x[0] != x[2]: direita = x
-        if x[2] == estado and x[2] != x[0]: esquerda = x
-        
-    flag = stateHasLoop(estado, transitions)
-    if flag != "": nova_transicao = [esquerda[0], f"{esquerda[1]}{flag}*{direita[1]}", direita[2]]
-    else: nova_transicao = [esquerda[0], f"{esquerda[1]}{direita[1]}", direita[2]]
+        if x[0] == estado and x[0] != x[2]: direita.append(x)
+        if x[2] == estado and x[2] != x[0]: esquerda.append(x)
     
+##Consegui separar as transições de interesse nas listas "direita" e "esquerda", eu só tenho que verificar se elas tem loop e fazer de forma parecida que eu fiz anteriormente, agora levando
+#em conta que tenho uma lista de transições e não apenas uma
+
+    ##Tenho que verificar se já havia transições entre o par de estados
+    '''flag = stateHasLoop(estado, transitions)
+    if flag != "":
+        if transitionBefore(esquerda[0], direita[2], transitions) != "":
+            nova_transicao = [esquerda[0], f"{transitionBefore(esquerda[0], direita[2], transitions)}+{esquerda[1]}{flag}*{direita[1]}", direita[2]]
+        else:
+            nova_transicao = [esquerda[0], f"{esquerda[1]}{flag}*{direita[1]}", direita[2]]
+
+    else: 
+        if transitionBefore(esquerda[0], direita[2], transitions) != "":
+            nova_transicao = [esquerda[0],f"{transitionBefore(esquerda[0], direita[2], transitions)}+{esquerda[1]}{direita[1]}",direita[2]]
+        else:
+            nova_transicao = [esquerda[0],f"{esquerda[1]}{direita[1]}",direita[2]]
+
     aux = []
     ##removendo estado e transicoes
     for i in range(len(transitions)):
         if transitions[i][0] == estado or transitions[i][2] == estado and transitions[i][0] != transitions[i][2]: 
-            #del transitions[i]
             aux.append(transitions[i])
 
     
     for x in aux:
         transitions.remove(x)
     transitions.append(nova_transicao)
-
+    print(f"Transições após a remoção do estado {estado}:")
+    print(transicoes); print("\n")
     return transitions
-
-
 
 def elimination(transitions :list):
     estados_pr_eliminar = []
@@ -193,25 +182,11 @@ def elimination(transitions :list):
             estados_pr_eliminar.append(element[2])
     estados_pr_eliminar = list(set(estados_pr_eliminar))
 
-
-    '''removidos = []    
-    for i in range(len(estados_pr_eliminar)):
-        for j in range(i+1, len(estados_pr_eliminar)):
-            if estados_pr_eliminar[i][2] == estados_pr_eliminar[j][0] and estados_pr_eliminar[i][0] not in removidos:
-                transitions.append([f'{estados_pr_eliminar[i][0]},{estados_pr_eliminar[i][1]}*{estados_pr_eliminar[j][1]}, {estados_pr_eliminar[j][2]}'])
-                removidos.append(estados_pr_eliminar[j][0])
-                #transitions.remove(estados_pr_eliminar[j])
-'''
-    #for estado in estados_pr_eliminar:
-     #   elimina_estado(estado, transitions)
-    #elimina_estado(estados_pr_eliminar[0], transitions)
-
-    
-
-                
-    
-    
-    return sorted(estados_pr_eliminar)
+    for element in sorted(estados_pr_eliminar):
+        elimina_estado(element, transitions)
+    print("A expressão regular obtida através do autômato finito é:")
+    print(transitions[0][1])'''
+    return transitions, esquerda, direita
 
 entrada = readFiles()
 estados, simbolos, estados_iniciais, estados_finais, transicoes = start(entrada)
@@ -225,23 +200,29 @@ printAlgorithm()
 
 
 ############### Teste
-teste = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
-teste2 = elimination(teste)
-
-
+teste, estados_iniciais, estados_finais = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
+#teste2 = elimination(teste)
+#print(teste)
+#print(estados)
+#print(simbolos)
+#print(estados_iniciais)
+#print(estados_finais)
 ##Parece que esta removendo os estados, pelo menos um a um.
 
 ##O próximo passo é ver se eu consigo chegar até o caso base.
-##Quando tem loop tem que colocar estrela.
 ##Trocar símbolo da concatenação(para sem símbolo), colocar ab ao invés de a*b 
-teste10 = elimina_estado('x', teste)
-#print(teste)
-#print(teste10)
+teste10, esquerda, direita = elimina_estado('i0', teste)
+print(teste10)
+print(esquerda)
+print(direita)
 
+'''
 print(teste10)
 teste10 = elimina_estado('x1', teste10)
 print(teste10)
 teste10 = elimina_estado('x1a', teste10)
 print(teste10)
 teste10 = elimina_estado('x1ab', teste10)
-print(teste10) 
+print(teste10)
+
+'''
