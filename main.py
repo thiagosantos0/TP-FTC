@@ -22,7 +22,7 @@ def printAlgorithm():
     return None
 
 def readFiles():
-    with open("t2.txt") as f:
+    with open("t1.txt") as f:
         content = f.read().splitlines()
     
     return content
@@ -129,7 +129,8 @@ def stateHasLoop(estado :str, transitions: list):
 
 def transitionBefore(estado1 :str, estado2: str, transitions :list):
     for element in transitions:
-        if (element[0] == estado1 and element[2] == estado2) or (element[0] == estado2 and element[2] == estado1): return element[1]
+        if (element[0] == estado1 and element[2] == estado2) or (element[0] == estado2 and element[2] == estado1): 
+            return element
     
     return ""
 
@@ -142,37 +143,71 @@ def elimina_estado(estado :str, transitions :list):
     for x in transitions:
         if x[0] == estado and x[0] != x[2]: direita.append(x)
         if x[2] == estado and x[2] != x[0]: esquerda.append(x)
-    
+
 ##Consegui separar as transições de interesse nas listas "direita" e "esquerda", eu só tenho que verificar se elas tem loop e fazer de forma parecida que eu fiz anteriormente, agora levando
 #em conta que tenho uma lista de transições e não apenas uma
 
     ##Tenho que verificar se já havia transições entre o par de estados
-    '''flag = stateHasLoop(estado, transitions)
-    if flag != "":
-        if transitionBefore(esquerda[0], direita[2], transitions) != "":
-            nova_transicao = [esquerda[0], f"{transitionBefore(esquerda[0], direita[2], transitions)}+{esquerda[1]}{flag}*{direita[1]}", direita[2]]
-        else:
-            nova_transicao = [esquerda[0], f"{esquerda[1]}{flag}*{direita[1]}", direita[2]]
+    flag = stateHasLoop(estado, transitions)
+    nova_transicao = []
+    for element1 in esquerda:
+        for element2 in direita:
+            if flag != "":
+                if transitionBefore(element1[0], element2[2], transitions) != "":
+                    transicao_antiga = transitionBefore(element1[0], element2[2], transitions)
+                    nova_transicao.append([element1[0], f"({transicao_antiga[1]}+{element1[1]}{flag}*{element2[1]})", element2[2]])
+                    transitions.remove(transicao_antiga)
+                ##Como a flag retorna "" quando não tem loop, eu não preciso do if-else
+                else:
+                    nova_transicao.append([element1[0], f"{element1[1]}({flag})*{element2[1]}", element2[2]])
 
-    else: 
-        if transitionBefore(esquerda[0], direita[2], transitions) != "":
-            nova_transicao = [esquerda[0],f"{transitionBefore(esquerda[0], direita[2], transitions)}+{esquerda[1]}{direita[1]}",direita[2]]
-        else:
-            nova_transicao = [esquerda[0],f"{esquerda[1]}{direita[1]}",direita[2]]
+            else: 
+                if transitionBefore(element1[0], element2[2], transitions) != "":
+                    transicao_antiga = transitionBefore(element1[0], element2[2], transitions)
+                    nova_transicao.append([element1[0],f"({transicao_antiga[1]}+{element1[1]}{element2[1]})",element2[2]])
+                    transitions.remove(transicao_antiga)
+                else:
+                    nova_transicao.append([element1[0],f"{element1[1]}{element2[1]}",element2[2]])
 
     aux = []
     ##removendo estado e transicoes
     for i in range(len(transitions)):
         if transitions[i][0] == estado or transitions[i][2] == estado and transitions[i][0] != transitions[i][2]: 
             aux.append(transitions[i])
-
+    
     
     for x in aux:
         transitions.remove(x)
-    transitions.append(nova_transicao)
+    ##Adicionando as novas transições
+    for element in nova_transicao:
+        transitions.append(element)
+
     print(f"Transições após a remoção do estado {estado}:")
+    #print(esquerda)
+    #print(direita)
     print(transicoes); print("\n")
-    return transitions
+    #print(nova_transicao)
+    return transicoes
+
+##Minha ordem de eliminação
+
+##Tenho que explicar na documentação porque escolhi essa ordem específica.
+def myOrder(estados_pr_eliminar :list, transitions: list):
+    direita = []
+    esquerda = []
+    new_list = []
+    
+    for estado in estados_pr_eliminar:
+        i = 0
+        for x in transitions:
+            if x[0] == estado and x[0] != x[2]: direita.append(x); i = i + 1
+            if x[2] == estado and x[2] != x[0]: esquerda.append(x); i = i + 1
+            
+        new_list.append([estado, i])
+
+    ##Criei uma lista de tuplas com os estados e quantidade de transições possíveis
+    new_list.sort(key=lambda x:x[1])
+    return new_list
 
 def elimination(transitions :list):
     estados_pr_eliminar = []
@@ -181,12 +216,12 @@ def elimination(transitions :list):
             estados_pr_eliminar.append(element[0])
             estados_pr_eliminar.append(element[2])
     estados_pr_eliminar = list(set(estados_pr_eliminar))
-
-    for element in sorted(estados_pr_eliminar):
-        elimina_estado(element, transitions)
+        
+    for element in myOrder(estados_pr_eliminar, transicoes):
+        elimina_estado(element[0], transitions)
     print("A expressão regular obtida através do autômato finito é:")
-    print(transitions[0][1])'''
-    return transitions, esquerda, direita
+    print(transitions[0][1])
+    return estados_pr_eliminar
 
 entrada = readFiles()
 estados, simbolos, estados_iniciais, estados_finais, transicoes = start(entrada)
@@ -211,13 +246,25 @@ teste, estados_iniciais, estados_finais = translate(estados, simbolos, estados_i
 
 ##O próximo passo é ver se eu consigo chegar até o caso base.
 ##Trocar símbolo da concatenação(para sem símbolo), colocar ab ao invés de a*b 
-teste10, esquerda, direita = elimina_estado('i0', teste)
+teste10= elimination(teste)
 print(teste10)
-print(esquerda)
-print(direita)
+#print(esquerda)
+#print(direita)
 
-'''
+
+'''teste10 = elimina_estado('i0', teste)
 print(teste10)
+
+teste10 = elimina_estado('p1', teste)
+print(teste10)
+
+teste10 = elimina_estado('p0', teste)
+print(teste10)
+
+teste10 = elimina_estado('i1', teste)
+print(teste10
+'''
+'''print(teste10)
 teste10 = elimina_estado('x1', teste10)
 print(teste10)
 teste10 = elimina_estado('x1a', teste10)

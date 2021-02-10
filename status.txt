@@ -1,3 +1,2 @@
-- Tenho que verificar se implementei corretamente o caso onde já havia uma transição anterior entre dois estados.
-- Mudar a função elimina_estado de modo que ela capture todas as transições do estado que será eliminado de forma correta e faça todas as novas trasições, pode ser mais de uma então provavelmente terei que fazer uma lista de "direitas e esquerdas", ao invés de parar na primeira aparição de transições que atendem o requisito, eu continui procurando por mais.
-
+Preciso verificar para mais testes.
+Refatorar o código.
