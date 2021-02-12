@@ -1,0 +1,16 @@
+A,B,C,D,E
+a,b,λ
+A
+A,B,C,D,E
+A,a,B
+A,b,C
+A,λ,D
+B,a,E
+B,b,C
+C,a,E
+C,b,C
+D,a,E
+D,b,C
+D,λ,D
+E,a,E
+E,b,C

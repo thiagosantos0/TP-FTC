@@ -1,5 +1,5 @@
-
-
+##Thiago Henrique Moreira Santos
+##2019007074
 
 def printAlgorithm():
     print("********************************************************************************************************")
@@ -23,7 +23,8 @@ def printAlgorithm():
     return None
 
 def readFiles():
-    with open("t1.txt") as f:
+    arq = str(input())
+    with open(arq) as f:
         content = f.read().splitlines()
     
     return content
@@ -59,7 +60,7 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
 
 
     ##Passando transicoes para tamanho 3
-    for x in transicoes:
+    for x in list(transicoes):
         if len(x[2:]) >= 2:
             transicoes.remove(x)
             for y in erFormat(x):
@@ -79,7 +80,6 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
     ##Lógica para remover transições múltiplas
 
     transicoes_copy = transicoes.copy()
-
     for i in range(0, len(transicoes)-2):
         for j in range(i+1, len(transicoes)-1):
             if transicoes[i][0] == transicoes[j][0]:
@@ -88,6 +88,7 @@ def translate(estados: list, simbolos: list, estados_iniciais: list, estados_fin
                     nova_transicao = [transicoes[i][0],f"({transicoes[i][1]}+{transicoes[j][1]})",transicoes[i][2]]
 
                     transicoes_copy.append(nova_transicao)
+                    
                     transicoes_copy.remove(transicoes[j])
                     transicoes_copy.remove(transicoes[i])
 
@@ -157,8 +158,6 @@ def elimina_estado(estado :str, transitions :list):
     return transicoes
 
 ##Minha ordem de eliminação
-##Tenho que explicar na documentação porque escolhi essa ordem específica.
-
 def myOrder(estados_pr_eliminar :list, transitions: list):
     direita = []
     esquerda = []
@@ -191,49 +190,25 @@ def elimination(transitions :list):
     for element in myOrder(estados_pr_eliminar, transicoes):
         elimina_estado(element[0], transitions)
         retorno.append(element)
+    
+    ##Imprime a expressão regular
     print(transitions[0][1])
     return retorno
 
 def getOrder(transition :list):
     return elimination(transition)
 
-##Main
+
+
+###################################################
+###################  Main  ########################
+###################################################
+
 entrada = readFiles()
 estados, simbolos, estados_iniciais, estados_finais, transicoes = start(entrada)
 estados, simbolos, estados_iniciais, estados_finais, transicoes = translate(estados, simbolos, estados_iniciais, estados_finais, transicoes)
 
 
-
-############### Testes
-#teste2 = elimination(teste)
-#print(teste)
-#print(estados)
-#print(simbolos)
-#print(estados_iniciais)
-#print(estados_finais)
-##Parece que esta removendo os estados, pelo menos um a um.
-
-##O próximo passo é ver se eu consigo chegar até o caso base.
-##Trocar símbolo da concatenação(para sem símbolo), colocar ab ao invés de a*b 
-teste10 = elimination(transicoes)
-#print(esquerda)
-#print(direita)
+chamada = elimination(transicoes)
 
 
-'''teste10 = elimina_estado('i0', teste)
-print(teste10)
-teste10 = elimina_estado('p1', teste)
-print(teste10)
-teste10 = elimina_estado('p0', teste)
-print(teste10)
-teste10 = elimina_estado('i1', teste)
-print(teste10
-'''
-'''print(teste10)
-teste10 = elimina_estado('x1', teste10)
-print(teste10)
-teste10 = elimina_estado('x1a', teste10)
-print(teste10)
-teste10 = elimina_estado('x1ab', teste10)
-print(teste10)
-'''
