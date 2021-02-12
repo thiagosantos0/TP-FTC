@@ -1,6 +1,9 @@
 ##Thiago Henrique Moreira Santos
 ##2019007074
 
+import sys
+
+
 def printAlgorithm():
     print("********************************************************************************************************")
     print("           ********  -----  Translate Finite Automata to Regular Expression  -----  ********\n")
@@ -23,8 +26,9 @@ def printAlgorithm():
     return None
 
 def readFiles():
-    arq = str(input())
-    with open(arq) as f:
+    arq = sys.argv[1]
+    content = []
+    with open(arq, 'r') as f:
         content = f.read().splitlines()
     
     return content
@@ -48,7 +52,7 @@ def erFormat(transition: list):
         new_transitions.append([transition[0], transition[1], x])
     return new_transitions
 
-##Realiza o passo dois do algoritmo, trocar as transições múltiplas por uniões.
+##Realiza o passo dois do método, trocar as transições múltiplas por uniões.
 
 def translate(estados: list, simbolos: list, estados_iniciais: list, estados_finais: list, transicoes: list):
     '''
@@ -162,7 +166,6 @@ def myOrder(estados_pr_eliminar :list, transitions: list):
     direita = []
     esquerda = []
     new_list = []
-    #print("Estados para eliminar: ", estados_pr_eliminar)
     for estado in estados_pr_eliminar:
         i = 0
         for x in transitions:
